@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-zinc-900 to-black px-6 py-24 text-white">
+    <main id="home" className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-zinc-900 to-black px-6 py-24 text-white">
       {/* Greeting */}
       <p className="mb-4 text-lg text-zinc-400">
         👋 Hi, I&apos;m
