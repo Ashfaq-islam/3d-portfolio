@@ -2,8 +2,10 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Lightformer } from "@react-three/drei";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Mesh, Points } from "three";
+import type { Mesh, Points, WebGLRenderer } from "three";
 import { Color, Vector3 } from "three";
 
 type ShapeKind = "box" | "sphere" | "torus" | "icosahedron";
@@ -77,6 +79,40 @@ const DRIFT_ROTATION_Y = 0.15;
 const DRIFT_ROTATION_Z = 0.1;
 const DRIFT_POSITION_Y = 0.5;
 
+/* BLOOM SETTINGS (tune here) */
+/*
+"auto"  = bloom only on devices that can afford it (the default)
+"on"    = always bloom, except when the visitor prefers reduced motion.
+          Set to "on" to preview bloom on a low-power laptop.
+"off"   = never bloom
+*/
+const BLOOM_MODE: "auto" | "on" | "off" = "auto";
+// How strong the glow is.
+const BLOOM_INTENSITY = 0.7;
+/*
+Anything brighter than this threshold glows. Purple and pink are dark colours
+(perceived luminance of roughly 0.2 to 0.3), so at 0.6 mostly the brightest
+highlights and the light coloured particles will glow, not the shapes
+themselves. If the shapes should glow, lower this towards 0.3 or raise the
+shapes' emissiveIntensity.
+*/
+const BLOOM_LUMINANCE_THRESHOLD = 0.6;
+// Softens the edge between "no glow" and "glow".
+const BLOOM_LUMINANCE_SMOOTHING = 0.4;
+// How far the blur spreads.
+const BLOOM_RADIUS = 0.7;
+// How many blur levels. Fewer levels = cheaper. Pass it explicitly so a library
+// update can never silently change how expensive this is.
+const BLOOM_LEVELS = 6;
+/*
+Anti-aliasing for the composer. Once the composer is active it renders the scene
+into its own buffers, so the Canvas antialias: true no longer applies and shape
+edges can look slightly jagged. 0 is the cheapest; try 2 to 4 if the edges look
+bad on your screen.
+*/
+const BLOOM_MULTISAMPLING = 0;
+// Bloom is skipped on machines at or below this many CPU cores.
+const LOW_POWER_MAX_CORES = 4;
 /*
 PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
 - Only 6 shapes, each with a very low-poly geometry (16 segment spheres, 12/24
@@ -92,6 +128,10 @@ PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
   reflections are baked a single time and never re-rendered.
 - The 180 dust particles are one <points> object (a single draw call) built
   from data generated once in a useMemo, so they add almost no cost.
+- Bloom only mounts when the device is allowed to have it (see BLOOM_MODE and
+  the low power check), so weaker machines never create its extra buffers.
+- It is a single Bloom effect with multisampling 0, which is the cheapest
+  useful post-processing setup. No other effects are added.
 */
 
 // A tiny seeded random number generator (mulberry32).
@@ -374,6 +414,94 @@ function CameraRig({ enabled }: CameraRigProps) {
   return null;
 }
 
+// Decides whether this machine should skip bloom.
+// It takes the existing renderer as an argument so we can read the GPU name
+// from the context R3F already created (no second WebGL context).
+function isLowPowerDevice(gl: WebGLRenderer): boolean {
+  // Rule 1: few CPU cores usually means a laptop with integrated graphics
+  if (
+    typeof navigator.hardwareConcurrency === "number" &&
+    navigator.hardwareConcurrency <= LOW_POWER_MAX_CORES
+  ) {
+    return true;
+  }
+
+  // Rule 2: Intel HD / UHD graphics are the chips we want to stay away from
+  try {
+    const context = gl.getContext();
+    // This extension is how a browser exposes the real GPU name. It is often
+    // blocked for privacy, in which case we simply cannot tell.
+    const debugInfo = context.getExtension("WEBGL_debug_renderer_info") as {
+      UNMASKED_RENDERER_WEBGL: number;
+    } | null;
+
+    if (!debugInfo) return false;
+
+    const gpuName = String(
+      context.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+    );
+
+    return /intel.*(hd|uhd)/i.test(gpuName);
+  } catch {
+    // Reading the GPU name can throw, and "we do not know" must never mean
+    // "turn the effect off", so we treat a failed lookup as not low power.
+    return false;
+  }
+}
+
+interface PostEffectsProps {
+  reduceMotion: boolean;
+}
+
+/*
+Bloom is the only post-processing effect in this scene. It is the expensive
+part: the EffectComposer renders the scene into its own frame buffers and then
+runs extra full screen passes. So it only mounts when the device and the
+visitor allow it, and returning null means a low power machine pays nothing.
+*/
+function PostEffects({ reduceMotion }: PostEffectsProps) {
+  // Reuse the renderer that React Three Fiber already made for this Canvas
+  const gl = useThree((state) => state.gl);
+
+  // Decided once instead of on every frame. useMemo keeps it stable, so the
+  // composer is not rebuilt needlessly.
+  const enableBloom = useMemo(() => {
+    // 1. Explicitly switched off
+    if (BLOOM_MODE === "off") return false;
+
+    // 2. Accessibility wins over everything else
+    if (reduceMotion) return false;
+
+    // 3. Forced on, for previewing bloom on a low power laptop
+    if (BLOOM_MODE === "on") return true;
+
+    // 4. Otherwise use the hardware check
+    return !isLowPowerDevice(gl);
+  }, [gl, reduceMotion]);
+
+  // Nothing is mounted, so no render targets and no extra passes are created
+  if (!enableBloom) return null;
+
+  return (
+    /*
+    No normal pass: this version of the library only creates one when
+    enableNormalPass is passed (the old disableNormalPass prop is gone), and
+    bloom does not need normals.
+    */
+    <EffectComposer multisampling={BLOOM_MULTISAMPLING}>
+      <Bloom
+        intensity={BLOOM_INTENSITY}
+        luminanceThreshold={BLOOM_LUMINANCE_THRESHOLD}
+        luminanceSmoothing={BLOOM_LUMINANCE_SMOOTHING}
+        mipmapBlur
+        radius={BLOOM_RADIUS}
+        levels={BLOOM_LEVELS}
+        blendFunction={BlendFunction.SCREEN}
+      />
+    </EffectComposer>
+  );
+}
+
 export default function HeroScene() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -453,6 +581,9 @@ export default function HeroScene() {
         <Particles animate={!reduceMotion} />
 
         <Shapes />
+
+        {/* Bloom goes last, so it is the final step before the screen */}
+        <PostEffects reduceMotion={reduceMotion} />
       </Canvas>
     </div>
   );
