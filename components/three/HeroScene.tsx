@@ -3,8 +3,8 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Lightformer } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Mesh } from "three";
-import { Vector3 } from "three";
+import type { Mesh, Points } from "three";
+import { Color, Vector3 } from "three";
 
 type ShapeKind = "box" | "sphere" | "torus" | "icosahedron";
 
@@ -40,6 +40,43 @@ const LERP_FACTOR = 0.05;
 // centred so the camera drifts back to its base position.
 const IDLE_RESET_MS = 2000;
 
+/* PARTICLE (COSMIC DUST) SETTINGS */
+// How many dots. 180 is plenty for a subtle background and still one draw call.
+const PARTICLE_COUNT = 180;
+/*
+PointsMaterial has a single `size` uniform for every point, so all dots are the
+same 3D size. sizeAttenuation makes points further away render smaller, so the
+random depth (z) is what creates the size variety. Because these dots sit 13 to
+23 units from the camera, a size of 0.02 would be under a pixel wide and almost
+invisible. 0.15 lands them at roughly 2-5 px on screen. Easy to tune here.
+*/
+const PARTICLE_SIZE = 0.15;
+// Fixed seed for the random generator, so the layout never changes between
+// renders or between the server and the browser.
+const PARTICLE_SEED = 42;
+// The palette each particle picks its colour from.
+const PARTICLE_COLORS: string[] = [
+  "#a855f7",
+  "#ec4899",
+  "#c084fc",
+  "#e9d5ff",
+];
+// The spawn area the dots are scattered across.
+const PARTICLE_SPREAD_X = 15;
+const PARTICLE_SPREAD_Y = 10;
+// Particles stay between this and the camera, so they never fly past it.
+const PARTICLE_Z_NEAR = -5;
+const PARTICLE_Z_FAR = -15;
+// Alpha range, so some dots are faint and some stand out.
+const PARTICLE_ALPHA_MIN = 0.4;
+const PARTICLE_ALPHA_MAX = 0.9;
+// How fast the whole cloud sways. Very slow on purpose.
+const DRIFT_SPEED = 0.05;
+// How far the cloud is allowed to tilt and slide, in radians and world units.
+const DRIFT_ROTATION_Y = 0.15;
+const DRIFT_ROTATION_Z = 0.1;
+const DRIFT_POSITION_Y = 0.5;
+
 /*
 PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
 - Only 6 shapes, each with a very low-poly geometry (16 segment spheres, 12/24
@@ -53,7 +90,108 @@ PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
   stay visible as one static frame instead of animating.
 - The Environment is procedural (no downloaded HDR) with frames={1}, so its
   reflections are baked a single time and never re-rendered.
+- The 180 dust particles are one <points> object (a single draw call) built
+  from data generated once in a useMemo, so they add almost no cost.
 */
+
+// A tiny seeded random number generator (mulberry32).
+// It gives us "random looking" numbers that are always the same sequence for
+// the same seed, which keeps the particle layout stable and keeps React happy
+// (Math.random() during render is not allowed).
+function mulberry32(seed: number): () => number {
+  let state = seed;
+
+  return () => {
+    state += 0x6d2b79f5;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+interface ParticlesProps {
+  animate: boolean;
+}
+
+function Particles({ animate }: ParticlesProps) {
+  const pointsRef = useRef<Points>(null);
+  // Seconds of animation, accumulated from delta
+  const elapsed = useRef(0);
+
+  // Build the particle data once. useMemo with an empty dependency list means
+  // this only runs on the first render, not on every frame.
+  const { positions, colors } = useMemo(() => {
+    const random = mulberry32(PARTICLE_SEED);
+
+    // three Float32Arrays: one value per axis, one value per colour channel
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const colors = new Float32Array(PARTICLE_COUNT * 4);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      // Step 1: scatter the particle across the area, with the depth (z) also
+      // being random. That random depth is what makes far dots look smaller.
+      positions[i * 3] = (random() * 2 - 1) * PARTICLE_SPREAD_X;
+      positions[i * 3 + 1] = (random() * 2 - 1) * PARTICLE_SPREAD_Y;
+      positions[i * 3 + 2] =
+        PARTICLE_Z_NEAR + random() * (PARTICLE_Z_FAR - PARTICLE_Z_NEAR);
+
+      // Step 2: pick one palette colour. new Color(hex) also converts the hex
+      // from sRGB to the linear values three.js expects for lighting.
+      const color = new Color(PARTICLE_COLORS[Math.floor(random() * PARTICLE_COLORS.length)]);
+      colors[i * 4] = color.r;
+      colors[i * 4 + 1] = color.g;
+      colors[i * 4 + 2] = color.b;
+
+      // Step 3: a random alpha (the 4th channel) mixes faint and bright dots
+      colors[i * 4 + 3] =
+        PARTICLE_ALPHA_MIN + random() * (PARTICLE_ALPHA_MAX - PARTICLE_ALPHA_MIN);
+    }
+
+    return { positions, colors };
+  }, []);
+
+  useFrame((_state, delta) => {
+    if (!animate) return;
+
+    // delta is the seconds since the last frame, so adding it up makes the
+    // sway run at the same speed on a 30, 60 or 144 FPS screen.
+    elapsed.current += delta;
+
+    // Only the whole cloud moves. Touching 180 individual particles every
+    // frame would be wasteful, and rotating the parent does the same job.
+    if (!pointsRef.current) return;
+
+    pointsRef.current.rotation.y =
+      Math.sin(elapsed.current * DRIFT_SPEED) * DRIFT_ROTATION_Y;
+    pointsRef.current.rotation.z =
+      Math.sin(elapsed.current * DRIFT_SPEED * 0.6) * DRIFT_ROTATION_Z;
+    pointsRef.current.position.y =
+      Math.sin(elapsed.current * DRIFT_SPEED * 1.5) * DRIFT_POSITION_Y;
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        {/* itemSize 3 = x, y, z per particle */}
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        {/* itemSize 4 = red, green, blue, alpha per particle */}
+        <bufferAttribute attach="attributes-color" args={[colors, 4]} />
+      </bufferGeometry>
+      {/* vertexColors reads the colour attribute above, depthWrite={false}
+          stops transparent dots from fighting each other, and toneMapped={false}
+          keeps the exact palette colours instead of tone mapping them. */}
+      <pointsMaterial
+        size={PARTICLE_SIZE}
+        sizeAttenuation
+        vertexColors
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </points>
+  );
+}
 
 // Picks the geometry for a shape. All sizes give a bounding radius of ~1,
 // so the scale prop controls how big each shape looks.
@@ -309,6 +447,10 @@ export default function HeroScene() {
 
         {/* Mouse parallax camera. Disabled when the visitor prefers reduced motion. */}
         <CameraRig enabled={!reduceMotion} />
+
+        {/* Depth is handled by the particle z positions (-15 to -5), so these sit
+            behind the shapes without relying on JSX order. */}
+        <Particles animate={!reduceMotion} />
 
         <Shapes />
       </Canvas>
