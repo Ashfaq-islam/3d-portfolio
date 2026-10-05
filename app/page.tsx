@@ -1,5 +1,9 @@
+import About from "@/components/sections/About";
+import Skills from "@/components/sections/Skills";
+
 export default function Home() {
   return (
+    <>
     <main id="home" className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-zinc-950 via-zinc-900 to-black px-6 py-24 text-white">
       {/* Greeting */}
       <p className="mb-4 text-lg text-zinc-400">
@@ -45,5 +49,9 @@ export default function Home() {
         <span className="animate-bounce">↓</span>
       </div>
     </main>
+
+      <About />
+      <Skills />
+    </>
   );
 }
