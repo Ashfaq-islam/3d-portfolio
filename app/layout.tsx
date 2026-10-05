@@ -13,10 +13,32 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/*
+The site's own address, used to turn relative metadata paths (canonical link,
+share images) into absolute URLs. Falls back to localhost in development.
+
+new URL() throws on anything malformed, and a bad value in an environment
+variable must never break the build, so the value is validated and replaced
+with a safe default.
+*/
+function getMetadataBase(): URL {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+  try {
+    return new URL(siteUrl);
+  } catch {
+    return new URL("http://localhost:3000");
+  }
+}
+
 export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
   title: "Ashfaq Islam | Full Stack Developer",
   description:
     "Portfolio of Ashfaq Islam — Full Stack Developer crafting modern, interactive 3D web experiences.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

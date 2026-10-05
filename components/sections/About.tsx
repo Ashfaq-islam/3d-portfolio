@@ -1,3 +1,5 @@
+import PhotoWithFallback from "@/components/ui/PhotoWithFallback";
+
 type Stat = {
   value: string;
   label: string;
@@ -32,16 +34,20 @@ export default function About() {
                 className="absolute -inset-6 -z-10 rounded-full bg-gradient-to-br from-brand-primary/30 to-brand-secondary/20 blur-3xl md:-inset-10"
               />
 
-              {/* TODO: Replace this placeholder with a real image using next/image */}
-              <div
-                role="img"
-                aria-label="Photo of Ashfaq Islam"
-                className="rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary p-[2px] transition-transform duration-300 hover:scale-[1.02]"
-              >
-                <div className="flex aspect-square items-center justify-center rounded-2xl bg-zinc-950">
-                  <span aria-hidden="true" className="text-7xl md:text-8xl">
-                    👨‍💻
-                  </span>
+              {/* Add /public/about-photo.jpg; placeholder shows until then */}
+              <div className="rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary p-[2px] transition-transform duration-300 hover:scale-[1.02]">
+                {/* overflow-hidden clips the photo to the rounded corners of the
+                    gradient border wrapper above */}
+                <div className="aspect-square overflow-hidden rounded-2xl bg-zinc-950">
+                  <PhotoWithFallback
+                    src="/about-photo.jpg"
+                    alt="Photo of Ashfaq Islam"
+                    width={800}
+                    height={800}
+                    sizes="(min-width: 768px) 400px, 90vw"
+                    placeholderEmoji="👨‍💻"
+                    placeholderLabel="About Photo"
+                  />
                 </div>
               </div>
             </div>

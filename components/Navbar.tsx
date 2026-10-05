@@ -8,6 +8,8 @@ const navLinks = [
   { name: "About", href: "#about" },
   { name: "Skills", href: "#skills" },
   { name: "Projects", href: "#projects" },
+  { name: "Achievements", href: "#achievements" },
+  { name: "Gallery", href: "#gallery" },
   { name: "Contact", href: "#contact" },
 ];
 
@@ -53,8 +55,16 @@ export default function Navbar() {
           Ashfaq<span className="text-brand-primary">.</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <ul className="hidden items-center gap-8 md:flex">
+        {/*
+          Desktop Navigation.
+
+          The full link list only appears from the lg breakpoint (1024px) up.
+          Seven links (including the long "Achievements") do not fit between
+          768px and 1024px next to the logo, so tablets get the hamburger
+          instead. gap-6 keeps the links comfortable at lg, and xl:gap-8 opens
+          the spacing up again on wide screens.
+        */}
+        <ul className="hidden items-center gap-6 lg:flex xl:gap-8">
           {navLinks.map((link) => (
             <li key={link.name}>
               <a
@@ -71,7 +81,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex flex-col gap-1.5 md:hidden"
+          className="flex flex-col gap-1.5 lg:hidden"
           aria-label="Toggle menu"
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
@@ -94,10 +104,10 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu. max-h-96 is tall enough for all seven links at gap-4. */}
       <div
         id="mobile-menu"
-        className={`overflow-hidden transition-all duration-300 md:hidden ${
+        className={`overflow-hidden transition-all duration-300 lg:hidden ${
           isOpen ? "max-h-96" : "max-h-0"
         }`}
       >

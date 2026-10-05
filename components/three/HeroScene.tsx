@@ -1,34 +1,13 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Float, Lightformer } from "@react-three/drei";
+import { Environment, Lightformer } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
-import type { Group, Mesh, Points, WebGLRenderer } from "three";
+import type { Group, Points, WebGLRenderer } from "three";
 import { Color, Vector3 } from "three";
-
-type ShapeKind = "box" | "sphere" | "torus" | "icosahedron";
-
-interface FloatingShapeProps {
-  position: [number, number, number];
-  color: string;
-  shape: ShapeKind;
-  scale: number;
-  rotationSpeed: number;
-}
-
-// Every position is a fixed value so the server and client render the same scene
-// Keep these colors in sync with --color-brand-* in app/globals.css
-const shapes: FloatingShapeProps[] = [
-  { shape: "torus", color: "#3b82f6", position: [-3, 1.5, -2], scale: 0.6, rotationSpeed: 0.25 },
-  { shape: "icosahedron", color: "#06b6d4", position: [3, -1, -1.5], scale: 0.5, rotationSpeed: 0.35 },
-  { shape: "box", color: "#60a5fa", position: [2.5, 1.8, -2.5], scale: 0.4, rotationSpeed: 0.3 },
-  { shape: "sphere", color: "#22d3ee", position: [-2.8, -1.5, -1.8], scale: 0.5, rotationSpeed: 0.2 },
-  { shape: "torus", color: "#1e40af", position: [0, 2.2, -3], scale: 0.35, rotationSpeed: 0.4 },
-  { shape: "icosahedron", color: "#67e8f9", position: [-3.5, 0, -2], scale: 0.3, rotationSpeed: 0.3 },
-];
 
 /* CAMERA PARALLAX SETTINGS */
 // Where the camera sits when the cursor is centred. Shared by the Canvas and
@@ -59,6 +38,7 @@ const PARTICLE_SIZE = 0.15;
 // renders or between the server and the browser.
 const PARTICLE_SEED = 42;
 // The palette each particle picks its colour from.
+// Keep these colors in sync with --color-brand-* in app/globals.css
 const PARTICLE_COLORS: string[] = [
   "#3b82f6",
   "#06b6d4",
@@ -94,9 +74,8 @@ const BLOOM_INTENSITY = 0.7;
 /*
 Anything brighter than this threshold glows. Blue and cyan are dark colours
 (perceived luminance of roughly 0.2 to 0.3), so at 0.6 mostly the brightest
-highlights and the light coloured particles will glow, not the shapes
-themselves. If the shapes should glow, lower this towards 0.3 or raise the
-shapes' emissiveIntensity.
+highlights and the light coloured particles will glow. If you want the dust to
+glow more, lower this towards 0.3.
 */
 const BLOOM_LUMINANCE_THRESHOLD = 0.6;
 // Softens the edge between "no glow" and "glow".
@@ -108,9 +87,9 @@ const BLOOM_RADIUS = 0.7;
 const BLOOM_LEVELS = 6;
 /*
 Anti-aliasing for the composer. Once the composer is active it renders the scene
-into its own buffers, so the Canvas antialias: true no longer applies and shape
-edges can look slightly jagged. 0 is the cheapest; try 2 to 4 if the edges look
-bad on your screen.
+into its own buffers, so the Canvas antialias: true no longer applies and edges
+can look slightly jagged. 0 is the cheapest; try 2 to 4 if the edges look bad on
+your screen.
 */
 const BLOOM_MULTISAMPLING = 0;
 // Bloom is skipped on machines at or below this many CPU cores.
@@ -119,19 +98,18 @@ const LOW_POWER_MAX_CORES = 4;
 /*
 All of these are in world units. Because the scene uses a perspective camera,
 the same world offset looks smaller on screen for far away objects (the
-particles sit about 18 units from the camera, the shapes about 8 to 11), which
-is exactly what makes the depth illusion work.
+particles sit about 13 to 23 units from the camera), which is exactly what
+makes the depth illusion work.
 The scene reaches its full effect after one viewport of scrolling, then clamps.
 */
-// The shapes are the nearest layer, so they travel the furthest and read as
-// the foreground.
-const PARALLAX_SHAPES_Y = 1.5;
-// The particles are the far layer, so they move much less.
-const PARALLAX_PARTICLES_Y = 0.6;
-// The camera drops a little as you scroll, which pushes the layers up on
-// screen and adds to the feeling of looking down at the scene.
+// The particles are now the only parallax layer, so they carry the whole
+// effect. At 1.0 the dust travels about as far as the old shapes did, which
+// reads as a clear parallax without a second layer competing with it.
+const PARALLAX_PARTICLES_Y = 1.0;
+// The camera drops a little as you scroll, which pushes the dust up on screen
+// and adds to the feeling of looking down at the scene.
 const PARALLAX_CAMERA_Y = 0.8;
-// A small push back for depth. The shapes stay centred because the camera
+// A small push back for depth. The particles stay centred because the camera
 // moves less than they do.
 const PARALLAX_CAMERA_Z = 1.5;
 // Smoothing for the single scroll value. A touch snappier than the mouse lerp
@@ -140,15 +118,15 @@ const SCROLL_LERP_FACTOR = 0.08;
 
 /*
 PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
-- Only 6 shapes, each with a very low-poly geometry (16 segment spheres, 12/24
-  segment toruses, flat-shaded icosahedrons). More detail would not be visible
-  behind the Hero text and would cost frames.
+- The scene is now particles only. The 6 lit shapes were removed, which drops 6
+  meshes, their geometries, their per-frame rotation and drei's <Float> wrappers
+  from every frame.
 - dpr is capped at [1, 2] so the canvas never renders above 2x pixel density,
   which is the single biggest win on an Intel i5-7200U.
 - The scene switches frameloop to "demand" as soon as the Hero leaves the
   screen, so scrolling past it stops all GPU work.
-- "demand" is also used when the visitor prefers reduced motion, so the shapes
-  stay visible as one static frame instead of animating.
+- "demand" is also used when the visitor prefers reduced motion, so the dust
+  stays visible as one static frame instead of animating.
 - The Environment is procedural (no downloaded HDR) with frames={1}, so its
   reflections are baked a single time and never re-rendered.
 - The 180 dust particles are one <points> object (a single draw call) built
@@ -258,90 +236,6 @@ function Particles({ animate }: ParticlesProps) {
         toneMapped={false}
       />
     </points>
-  );
-}
-
-// Picks the geometry for a shape. All sizes give a bounding radius of ~1,
-// so the scale prop controls how big each shape looks.
-function ShapeGeometry({ shape }: { shape: ShapeKind }) {
-  switch (shape) {
-    case "box":
-      return <boxGeometry args={[1.6, 1.6, 1.6]} />;
-    case "sphere":
-      return <sphereGeometry args={[1, 16, 16]} />;
-    case "torus":
-      return <torusGeometry args={[1, 0.35, 12, 24]} />;
-    case "icosahedron":
-      return <icosahedronGeometry args={[1, 0]} />;
-  }
-}
-
-function FloatingShape({
-  position,
-  color,
-  shape,
-  scale,
-  rotationSpeed,
-}: FloatingShapeProps) {
-  // useRef gives us a direct handle to the three.js mesh
-  const meshRef = useRef<Mesh>(null);
-
-  // useFrame runs before every frame. delta is the seconds since the last
-  // frame, so the speed stays the same on 60Hz and 120Hz screens.
-  useFrame((_state, delta) => {
-    if (!meshRef.current) return;
-
-    meshRef.current.rotation.x += delta * rotationSpeed;
-    meshRef.current.rotation.y += delta * rotationSpeed * 0.8;
-  });
-
-  return (
-    // Float from drei adds the gentle up and down bobbing
-    <Float
-      speed={1.2}
-      rotationIntensity={0.2}
-      floatIntensity={0.8}
-      floatingRange={[-0.1, 0.1]}
-    >
-      <mesh ref={meshRef} position={position} scale={scale}>
-        <ShapeGeometry shape={shape} />
-        <meshStandardMaterial
-          color={color}
-          metalness={0.4}
-          roughness={0.3}
-          emissive={color}
-          emissiveIntensity={0.15}
-        />
-      </mesh>
-    </Float>
-  );
-}
-
-function Shapes() {
-  // viewport.width tells us how wide the visible area is at the camera distance
-  const { viewport } = useThree();
-
-  // On phones the visible width is small, so pull the x positions inward to
-  // stop shapes from drifting off screen
-  const xScale = Math.min(1, viewport.width / 8);
-
-  return (
-    <group>
-      {shapes.map((item) => (
-        <FloatingShape
-          key={`${item.shape}-${item.position.join("-")}`}
-          position={[
-            item.position[0] * xScale,
-            item.position[1],
-            item.position[2],
-          ]}
-          color={item.color}
-          shape={item.shape}
-          scale={item.scale}
-          rotationSpeed={item.rotationSpeed}
-        />
-      ))}
-    </group>
   );
 }
 
@@ -530,10 +424,10 @@ interface ScrollGroupProps {
 /*
 Wraps a layer of the scene in a group that slides up as the page scrolls.
 
-Using a parent group instead of editing each layer keeps the code simple: the
-child keeps its own local motion (the particles still sway, the shapes still
-rotate) and the two motions compose. A positive factor moves the layer up
-because progress grows from 0 to 1.
+Using a parent group instead of editing the layer itself keeps the code simple:
+the child keeps its own local motion (the particles sway) and the two motions
+compose. A positive factor moves the layer up because progress grows from 0
+to 1.
 */
 function ScrollGroup({ progressRef, factor, children }: ScrollGroupProps) {
   const groupRef = useRef<Group>(null);
@@ -680,6 +574,12 @@ export default function HeroScene() {
         style={{ pointerEvents: "none" }}
         frameloop={isVisible && !reduceMotion ? "always" : "demand"}
       >
+        {/* LIGHTS AND ENVIRONMENT
+            These only affect lit (PBR) materials, and the only thing left in
+            the scene is the unlit <pointsMaterial> dust cloud. So they are
+            currently doing no visible work and can be deleted in a later step
+            to save GPU work. Kept for now so lit objects can be added back
+            cheaply. */}
         <ambientLight intensity={0.4} />
         <directionalLight position={[5, 5, 5]} intensity={0.8} />
         {/* decay={0} keeps the blue rim light strong at this distance */}
@@ -690,8 +590,10 @@ export default function HeroScene() {
           decay={0}
         />
 
-        {/* Procedural environment: two coloured light panels give the metallic
-            shapes soft reflections without loading any HDR file */}
+        {/* Procedural environment: two coloured light panels would give lit
+            materials soft reflections without loading any HDR file. Like the
+            lights above, it only affects lit materials, so it is currently
+            unused by the particle dust. */}
         <Environment resolution={32} frames={1}>
           <Lightformer
             form="rect"
@@ -716,15 +618,11 @@ export default function HeroScene() {
         {/* Mouse parallax camera. Disabled when the visitor prefers reduced motion. */}
         <CameraRig enabled={!reduceMotion} progressRef={scrollProgress} />
 
-        {/* Depth is handled by the particle z positions (-15 to -5), so these sit
-            behind the shapes without relying on JSX order. The far layer scrolls
-            slower than the shapes below it. */}
+        {/* The dust is the only parallax layer now. Depth comes from the
+            particle z positions (-15 to -5), so scroll parallax is the only
+            thing moving it. */}
         <ScrollGroup progressRef={scrollProgress} factor={PARALLAX_PARTICLES_Y}>
           <Particles animate={!reduceMotion} />
-        </ScrollGroup>
-
-        <ScrollGroup progressRef={scrollProgress} factor={PARALLAX_SHAPES_Y}>
-          <Shapes />
         </ScrollGroup>
 
         {/* Bloom goes last, so it is the final step before the screen */}

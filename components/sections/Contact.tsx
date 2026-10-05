@@ -49,7 +49,21 @@ const socialLinks: SocialLink[] = [
     ),
   },
   {
-    name: "Twitter",
+    name: "X",
+    href: "#",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M18.9 2.5h3.3l-7.2 8.24L23.4 21.5h-6.6l-5.17-6.76-5.92 6.76H2.4l7.7-8.8L2 2.5h6.77l4.68 6.18 5.45-6.18Zm-1.16 17h1.83L7.5 4.4H5.55L17.74 19.5Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Facebook",
     href: "#",
     icon: (
       <svg
@@ -58,7 +72,63 @@ const socialLinks: SocialLink[] = [
         viewBox="0 0 24 24"
         fill="currentColor"
       >
-        <path d="M18.9 2.5h3.3l-7.2 8.24L23.4 21.5h-6.6l-5.17-6.76-5.92 6.76H2.4l7.7-8.8L2 2.5h6.77l4.68 6.18 5.45-6.18Zm-1.16 17h1.83L7.5 4.4H5.55L17.74 19.5Z" />
+        <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.5-3.91 3.77-3.91 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.45 2.91h-2.33V22c4.78-.79 8.44-4.94 8.44-9.94Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Instagram",
+    href: "#",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9a3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16Zm0 3.89a5.95 5.95 0 1 0 0 11.9 5.95 5.95 0 0 0 0-11.9Zm0 9.82a3.87 3.87 0 1 1 0-7.74 3.87 3.87 0 0 1 0 7.74Zm6.05-10.06a1.39 1.39 0 1 1-2.78 0 1.39 1.39 0 0 1 2.78 0Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Discord",
+    href: "#",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M19.3 5.36A16.4 16.4 0 0 0 15.44 4l-.3.5a15.2 15.2 0 0 1 3.6 1.8 13.9 13.9 0 0 0-11.5 0A15.2 15.2 0 0 1 10.9 4.5L10.6 4a16.4 16.4 0 0 0-3.9 1.36C4.3 9.3 3.5 13.1 3.8 16.85a16.5 16.5 0 0 0 5 2.52l1-1.7a10.7 10.7 0 0 1-1.7-.83l.42-.32a11.6 11.6 0 0 0 9.9 0l.42.32c-.52.33-1.1.62-1.7.83l1 1.7a16.5 16.5 0 0 0 5-2.52c.36-4.34-.74-8.1-2.84-11.49ZM9.7 14.5c-.97 0-1.76-.9-1.76-2s.77-2 1.76-2 1.78.9 1.76 2c0 1.1-.77 2-1.76 2Zm4.6 0c-.97 0-1.76-.9-1.76-2s.77-2 1.76-2 1.78.9 1.76 2c0 1.1-.77 2-1.76 2Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Snapchat",
+    href: "#",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M12 2.2c2.9 0 4.75 2 4.83 4.72v.86c.2.05.4.05.6.05.9 0 1.3-.36 1.55-.36.4 0 .8.5.55 1.1-.2.5-.85.8-1.5 1.1-.15.05-.3.4-.3.7 0 1.6 1.6 2.6 3.3 3 .35.1.55.4.45.8-.3 1.3-2.2 1.9-3.2 2-.05.35-.15.7-.6.9-.4.15-1.4.15-2.6.5-.2.9-.4 1.55-1.3 1.55-.6 0-1.1-.4-2.2-.4-1.4 0-2.9.9-4.8.9s-3.4-.9-4.8-.9c-1.1 0-1.6.4-2.2.4-.9 0-1.1-.65-1.3-1.55-1.2-.35-2.2-.35-2.6-.5-.45-.2-.55-.55-.6-.9-1-.1-2.9-.7-3.2-2-.1-.4.1-.7.45-.8 1.7-.4 3.3-1.4 3.3-3 0-.3-.15-.65-.3-.7-.65-.3-1.3-.6-1.5-1.1-.25-.6.15-1.1.55-1.1.25 0 .65.36 1.55.36.2 0 .4 0 .6-.05v-.86C7.25 4.2 9.1 2.2 12 2.2Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Pinterest",
+    href: "#",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M12 2.2a9.8 9.8 0 0 0-3.6 18.9c-.1-.8-.2-2 0-2.9l1.2-5.1s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3.1-1.9 3.1-4.6 0-2.4-1.7-4.1-4.2-4.1-2.9 0-4.6 2.2-4.6 4.4 0 .9.3 1.8.8 2.3.1.1.1.2.1.3l-.25 1c0 .2-.2.2-.4.1-1.2-.55-1.9-2.3-1.9-3.7 0-3 2.2-5.8 6.4-5.8 3.3 0 5.9 2.4 5.9 5.6 0 3.3-2.1 6-5 6-1 0-1.9-.5-2.2-1.1l-.6 2.3c-.2.8-.7 1.7-1.1 2.3A9.8 9.8 0 1 0 12 2.2Z" />
       </svg>
     ),
   },
@@ -165,9 +235,14 @@ export default function Contact() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          {/* Contact details and social links */}
-          <div>
+        {/* lg:items-stretch makes both columns the same height on desktop, so the
+            form card lines up with the details column. */}
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-stretch">
+          {/* Contact details and social links. h-full + mt-auto pushes the social
+              block to the bottom so it sits on the same baseline as the form's
+              submit button. On mobile the column has no fixed height, so the
+              heights are natural. */}
+          <div className="flex h-full flex-col gap-4">
             <ul className="space-y-4">
               <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-brand-primary/50">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
@@ -217,12 +292,56 @@ export default function Contact() {
                   <p className="text-white">Bangladesh</p>
                 </div>
               </li>
+
+              <li className="rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-brand-primary/50">
+                <div className="flex gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
+                    <svg
+                      aria-hidden="true"
+                      className="h-5 w-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="7" y="2" width="10" height="20" rx="2.5" />
+                      <path d="M11 18.5h2" />
+                    </svg>
+                  </span>
+
+                  {/* One row per number: the number as a tel: link, with the
+                      carrier named underneath. */}
+                  <div className="min-w-0">
+                    <p className="text-sm text-zinc-400">Phone</p>
+
+                    <a
+                      href="tel:+8801973327179"
+                      className="block break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
+                    >
+                      +880 1973-327179
+                    </a>
+                    <p className="text-xs text-zinc-400">Banglalink</p>
+
+                    <a
+                      href="tel:+8801825722447"
+                      className="mt-3 block break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
+                    >
+                      +880 1825-722447
+                    </a>
+                    <p className="text-xs text-zinc-400">Robi</p>
+                  </div>
+                </div>
+              </li>
             </ul>
 
-            {/* Social profiles */}
-            <div className="mt-10">
+            {/* Social profiles. mt-auto pushes this block to the bottom of the
+                column. The grid is 4 columns on every screen size (2 rows of 4),
+                which is the only way to fit 8 round buttons down to 320px. */}
+            <div className="mt-auto pt-10">
               <p className="mb-4 text-zinc-400">Find me on</p>
-              <ul className="flex gap-4">
+              <ul className="grid grid-cols-4 gap-4 place-items-center">
                 {socialLinks.map((social) => (
                   <li key={social.name}>
                     <a
@@ -230,7 +349,7 @@ export default function Contact() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${social.name} profile`}
-                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-brand-primary/50 hover:text-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                      className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-brand-primary/50 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                     >
                       {social.icon}
                     </a>
@@ -240,9 +359,10 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact form */}
-          <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6 md:p-8">
-            <form onSubmit={handleSubmit} noValidate className="space-y-6">
+          {/* Contact form. h-full + flex flex-col lets the Message field grow, so
+              this card ends at the same height as the column on its left. */}
+          <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-zinc-900/50 p-6 md:p-8">
+            <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col space-y-6">
               <div>
                 <label
                   htmlFor="contact-name"
@@ -295,7 +415,9 @@ export default function Contact() {
                 )}
               </div>
 
-              <div>
+              {/* flex-1 lets this field take up the slack, so the textarea can fill it and
+                  the form card matches the height of the left column. */}
+              <div className="flex flex-1 flex-col">
                 <label
                   htmlFor="contact-message"
                   className="mb-2 block text-sm font-medium text-zinc-300"
@@ -311,7 +433,7 @@ export default function Contact() {
                   onChange={handleChange}
                   aria-invalid={Boolean(errors.message)}
                   aria-describedby={errors.message ? "contact-message-error" : undefined}
-                  className={`${getInputClassName(Boolean(errors.message))} resize-y`}
+                  className={`${getInputClassName(Boolean(errors.message))} h-full min-h-[8rem] resize-none`}
                 />
                 {errors.message && (
                   <p id="contact-message-error" role="alert" className="mt-2 text-sm text-red-400">
