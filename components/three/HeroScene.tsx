@@ -5,7 +5,8 @@ import { Environment, Float, Lightformer } from "@react-three/drei";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Mesh, Points, WebGLRenderer } from "three";
+import type { ReactNode, RefObject } from "react";
+import type { Group, Mesh, Points, WebGLRenderer } from "three";
 import { Color, Vector3 } from "three";
 
 type ShapeKind = "box" | "sphere" | "torus" | "icosahedron";
@@ -113,6 +114,29 @@ bad on your screen.
 const BLOOM_MULTISAMPLING = 0;
 // Bloom is skipped on machines at or below this many CPU cores.
 const LOW_POWER_MAX_CORES = 4;
+/* SCROLL PARALLAX SETTINGS (tune here) */
+/*
+All of these are in world units. Because the scene uses a perspective camera,
+the same world offset looks smaller on screen for far away objects (the
+particles sit about 18 units from the camera, the shapes about 8 to 11), which
+is exactly what makes the depth illusion work.
+The scene reaches its full effect after one viewport of scrolling, then clamps.
+*/
+// The shapes are the nearest layer, so they travel the furthest and read as
+// the foreground.
+const PARALLAX_SHAPES_Y = 1.5;
+// The particles are the far layer, so they move much less.
+const PARALLAX_PARTICLES_Y = 0.6;
+// The camera drops a little as you scroll, which pushes the layers up on
+// screen and adds to the feeling of looking down at the scene.
+const PARALLAX_CAMERA_Y = 0.8;
+// A small push back for depth. The shapes stay centred because the camera
+// moves less than they do.
+const PARALLAX_CAMERA_Z = 1.5;
+// Smoothing for the single scroll value. A touch snappier than the mouse lerp
+// so the scroll does not feel laggy.
+const SCROLL_LERP_FACTOR = 0.08;
+
 /*
 PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
 - Only 6 shapes, each with a very low-poly geometry (16 segment spheres, 12/24
@@ -132,6 +156,9 @@ PERFORMANCE NOTES (tuned for a mid-range laptop with integrated graphics)
   the low power check), so weaker machines never create its extra buffers.
 - It is a single Bloom effect with multisampling 0, which is the cheapest
   useful post-processing setup. No other effects are added.
+- Scroll parallax uses passive listeners (they never block scrolling), writes
+  into refs instead of state (so scrolling never re-renders React), smooths the
+  scroll value in exactly one place, and allocates nothing per frame.
 */
 
 // A tiny seeded random number generator (mulberry32).
@@ -330,6 +357,7 @@ function getInitialReduceMotion(): boolean {
 
 interface CameraRigProps {
   enabled: boolean;
+  progressRef: RefObject<number>;
 }
 
 /*
@@ -344,7 +372,7 @@ never move. Listening on `window` works no matter what the CSS says.
 The cursor position is stored in a ref instead of state so moving the mouse
 never triggers a React re-render.
 */
-function CameraRig({ enabled }: CameraRigProps) {
+function CameraRig({ enabled, progressRef }: CameraRigProps) {
   // Normalised cursor position: -1 (left/top edge) to 1 (right/bottom edge)
   const mouse = useRef({ x: 0, y: 0 });
   // Timestamp of the last real pointer move
@@ -392,11 +420,16 @@ function CameraRig({ enabled }: CameraRigProps) {
     const mouseX = isIdle ? 0 : mouse.current.x;
     const mouseY = isIdle ? 0 : mouse.current.y;
 
-    // Step 3: where the camera wants to be this frame
+    // Step 3: where the camera wants to be this frame. The scroll offsets are
+    // added here, in the one place that owns the camera position, so nothing
+    // else can fight over it. The existing lerp below smooths these too, so
+    // the scroll motion needs no extra smoothing of its own.
     target.set(
       CAMERA_BASE[0] + mouseX * PARALLAX_X,
-      CAMERA_BASE[1] + mouseY * PARALLAX_Y,
-      CAMERA_BASE[2]
+      CAMERA_BASE[1] +
+        mouseY * PARALLAX_Y -
+        progressRef.current * PARALLAX_CAMERA_Y,
+      CAMERA_BASE[2] + progressRef.current * PARALLAX_CAMERA_Z
     );
 
     // Step 4: move a little bit closer to that spot every frame instead of
@@ -412,6 +445,105 @@ function CameraRig({ enabled }: CameraRigProps) {
   });
 
   return null;
+}
+
+interface ScrollRigProps {
+  progressRef: RefObject<number>;
+  enabled: boolean;
+}
+
+/*
+Scroll parallax, in one place.
+
+ScrollRig owns the only scroll listener on the page. It measures how far the
+Hero has been scrolled (0 to 1), smooths that number, and writes it into a
+shared ref. Everything else just reads the ref, so there is only ever one
+smoothing step and the layers can never drift out of sync with each other.
+
+The value lives in a ref and not in state on purpose: scrolling must never
+trigger a React re-render.
+*/
+function ScrollRig({ progressRef, enabled }: ScrollRigProps) {
+  // The raw, not yet smoothed measurement (0 to 1)
+  const target = useRef(0);
+
+  useEffect(() => {
+    // Reduced motion, or disabled for any other reason: stay at the top
+    if (!enabled) {
+      target.current = 0;
+      progressRef.current = 0;
+      return;
+    }
+
+    const update = () => {
+      // How many viewports have been scrolled, clamped between 0 and 1 so the
+      // effect stops once the Hero has been scrolled past
+      target.current = Math.min(
+        Math.max(window.scrollY / window.innerHeight, 0),
+        1
+      );
+    };
+
+    update();
+    // Copy it straight over on mount. Without this, reloading the page halfway
+    // down would start at 0 and then swoosh into place.
+    progressRef.current = target.current;
+
+    // passive: true means we never call preventDefault(), so the browser never
+    // has to wait for us before scrolling
+    window.addEventListener("scroll", update, { passive: true });
+    // innerHeight changes when the browser bars show or hide on mobile, which
+    // would otherwise make the progress jump
+    window.addEventListener("resize", update, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [enabled, progressRef]);
+
+  // Priority -1 makes this run before every other useFrame callback in the same
+  // frame, so CameraRig and ScrollGroup read a freshly smoothed value. Only a
+  // positive priority would take over R3F's render loop, so -1 is safe.
+  useFrame((_state, delta) => {
+    if (!enabled) return;
+
+    // Same frame-rate independent formula as the mouse lerp: delta is the
+    // seconds since the last frame, so raising it to a power gives the same
+    // feel at 30, 60 or 144 FPS.
+    const t = 1 - Math.pow(1 - SCROLL_LERP_FACTOR, delta * 60);
+
+    // Ease the current value towards the measured one
+    progressRef.current += (target.current - progressRef.current) * t;
+  }, -1);
+
+  return null;
+}
+
+interface ScrollGroupProps {
+  progressRef: RefObject<number>;
+  factor: number;
+  children: ReactNode;
+}
+
+/*
+Wraps a layer of the scene in a group that slides up as the page scrolls.
+
+Using a parent group instead of editing each layer keeps the code simple: the
+child keeps its own local motion (the particles still sway, the shapes still
+rotate) and the two motions compose. A positive factor moves the layer up
+because progress grows from 0 to 1.
+*/
+function ScrollGroup({ progressRef, factor, children }: ScrollGroupProps) {
+  const groupRef = useRef<Group>(null);
+
+  useFrame(() => {
+    if (!groupRef.current) return;
+
+    groupRef.current.position.y = progressRef.current * factor;
+  });
+
+  return <group ref={groupRef}>{children}</group>;
 }
 
 // Decides whether this machine should skip bloom.
@@ -504,6 +636,9 @@ function PostEffects({ reduceMotion }: PostEffectsProps) {
 
 export default function HeroScene() {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Smoothed scroll progress from 0 to 1, shared by every scroll parallax
+  // consumer. A ref, not state, so scrolling never re-renders React.
+  const scrollProgress = useRef(0);
   const [isVisible, setIsVisible] = useState(true);
   const [reduceMotion, setReduceMotion] = useState<boolean>(
     getInitialReduceMotion
@@ -573,14 +708,23 @@ export default function HeroScene() {
           />
         </Environment>
 
+        {/* Scroll parallax comes first so it smooths the value before the other
+            rigs read it in the same frame */}
+        <ScrollRig progressRef={scrollProgress} enabled={!reduceMotion} />
+
         {/* Mouse parallax camera. Disabled when the visitor prefers reduced motion. */}
-        <CameraRig enabled={!reduceMotion} />
+        <CameraRig enabled={!reduceMotion} progressRef={scrollProgress} />
 
         {/* Depth is handled by the particle z positions (-15 to -5), so these sit
-            behind the shapes without relying on JSX order. */}
-        <Particles animate={!reduceMotion} />
+            behind the shapes without relying on JSX order. The far layer scrolls
+            slower than the shapes below it. */}
+        <ScrollGroup progressRef={scrollProgress} factor={PARALLAX_PARTICLES_Y}>
+          <Particles animate={!reduceMotion} />
+        </ScrollGroup>
 
-        <Shapes />
+        <ScrollGroup progressRef={scrollProgress} factor={PARALLAX_SHAPES_Y}>
+          <Shapes />
+        </ScrollGroup>
 
         {/* Bloom goes last, so it is the final step before the screen */}
         <PostEffects reduceMotion={reduceMotion} />
