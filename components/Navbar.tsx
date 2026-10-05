@@ -48,9 +48,9 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="#home"
-          className="text-xl font-bold text-white transition-colors duration-300 hover:text-purple-400"
+          className="text-xl font-bold text-white transition-colors duration-300 hover:text-brand-accent"
         >
-          Ashfaq<span className="text-purple-400">.</span>
+          Ashfaq<span className="text-brand-primary">.</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -59,7 +59,7 @@ export default function Navbar() {
             <li key={link.name}>
               <a
                 href={link.href}
-                className="text-sm font-medium text-zinc-400 transition-colors duration-300 hover:text-purple-400"
+                className="text-sm font-medium text-zinc-400 transition-colors duration-300 hover:text-brand-accent"
               >
                 {link.name}
               </a>
@@ -107,7 +107,7 @@ export default function Navbar() {
               <a
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block text-base font-medium text-zinc-400 transition-colors duration-300 hover:text-purple-400"
+                className="block text-base font-medium text-zinc-400 transition-colors duration-300 hover:text-brand-accent"
               >
                 {link.name}
               </a>

@@ -21,7 +21,7 @@ export default function Home() {
         <p className="relative z-10 mb-4 text-lg text-zinc-400">👋 Hi, I&apos;m</p>
 
         {/* Name with gradient */}
-        <h1 className="relative z-10 mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-center text-6xl font-bold tracking-tight text-transparent sm:text-7xl md:text-8xl">
+        <h1 className="relative z-10 mb-6 bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-glow bg-clip-text text-center text-6xl font-bold tracking-tight text-transparent sm:text-7xl md:text-8xl">
           Ashfaq Islam
         </h1>
 
@@ -33,7 +33,7 @@ export default function Home() {
         {/* Description */}
         <p className="relative z-10 mb-12 max-w-2xl text-center text-lg leading-relaxed text-zinc-400">
           I build modern, interactive{" "}
-          <span className="text-purple-400">3D web experiences</span> that
+          <span className="text-brand-primary">3D web experiences</span> that
           combine beautiful design with powerful functionality. Passionate about
           crafting clean code and delightful user interfaces.
         </p>
@@ -42,7 +42,7 @@ export default function Home() {
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row">
           <a
             href="#projects"
-            className="group flex h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 font-medium text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50"
+            className="group flex h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary px-8 font-medium text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-brand-primary/50"
           >
             🚀 View Projects
           </a>

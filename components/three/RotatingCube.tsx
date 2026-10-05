@@ -5,7 +5,7 @@ HOW TO TEST THIS TEMPORARILY
 1. Open app/page.tsx
 2. Add: import RotatingCube from "@/components/three/RotatingCube";
 3. Render <RotatingCube /> anywhere inside the returned JSX, then run `pnpm dev`
-   and check that a purple cube is rotating on the page.
+   and check that a blue cube is rotating on the page.
 4. Delete the import and the tag when you are done testing.
 If the cube does not appear, check that the wrapper <div> has an explicit height.
 */
@@ -32,7 +32,7 @@ function Cube() {
   return (
     <mesh ref={meshRef}>
       <boxGeometry args={[1.5, 1.5, 1.5]} />
-      <meshStandardMaterial color="#a855f7" />
+      <meshStandardMaterial color="#3b82f6" />
     </mesh>
   );
 }

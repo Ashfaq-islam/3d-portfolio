@@ -102,7 +102,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
             <p className="text-xl font-bold text-white">
-              Ashfaq<span className="text-purple-400">.</span>
+              Ashfaq<span className="text-brand-primary">.</span>
             </p>
             <p className="mt-4 max-w-xs text-zinc-400">
               Building modern 3D web experiences from Bangladesh.
@@ -117,7 +117,7 @@ export default function Footer() {
                   <li key={link.name}>
                     <a
                       href={link.href}
-                      className="text-zinc-400 transition-colors duration-300 hover:text-purple-400 focus-visible:outline-none focus-visible:text-purple-400"
+                      className="text-zinc-400 transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
                     >
                       {link.name}
                     </a>
@@ -137,7 +137,7 @@ export default function Footer() {
                     aria-label={`${social.name} profile`}
                     target={social.external ? "_blank" : undefined}
                     rel={social.external ? "noopener noreferrer" : undefined}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-purple-500/50 hover:text-purple-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-brand-primary/50 hover:text-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                   >
                     {social.icon}
                   </a>
@@ -155,7 +155,7 @@ export default function Footer() {
 
           <a
             href="#home"
-            className="group inline-flex items-center gap-1 transition-colors duration-300 hover:text-purple-400 focus-visible:outline-none focus-visible:text-purple-400"
+            className="group inline-flex items-center gap-1 transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
           >
             <span
               aria-hidden="true"

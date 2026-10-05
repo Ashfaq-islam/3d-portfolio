@@ -26,7 +26,7 @@ export default function Skills() {
       className="border-y border-white/10 bg-zinc-900/50 py-24 px-6 scroll-mt-24"
     >
       <div className="mx-auto max-w-6xl">
-        <div className="mb-4 h-1 w-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
+        <div className="mb-4 h-1 w-16 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary" />
 
         <h2 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
           Skills &amp; Technologies
@@ -40,13 +40,13 @@ export default function Skills() {
           {skills.map((skill) => (
             <div
               key={skill.name}
-              className="group flex flex-col items-center rounded-xl border border-white/10 bg-zinc-900 p-6 text-center transition-all duration-300 hover:scale-105 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/20"
+              className="group flex flex-col items-center rounded-xl border border-white/10 bg-zinc-900 p-6 text-center transition-all duration-300 hover:scale-105 hover:border-brand-primary/50 hover:shadow-lg hover:shadow-brand-primary/20"
             >
               <span className="mb-3 text-4xl" aria-hidden="true">
                 {skill.icon}
               </span>
               <h3 className="mb-3 font-semibold text-white">{skill.name}</h3>
-              <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+              <span className="rounded-full border border-brand-primary/30 bg-brand-primary/10 px-3 py-1 text-xs font-medium text-brand-primary">
                 {skill.level}
               </span>
             </div>

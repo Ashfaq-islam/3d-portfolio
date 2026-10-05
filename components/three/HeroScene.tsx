@@ -20,13 +20,14 @@ interface FloatingShapeProps {
 }
 
 // Every position is a fixed value so the server and client render the same scene
+// Keep these colors in sync with --color-brand-* in app/globals.css
 const shapes: FloatingShapeProps[] = [
-  { shape: "torus", color: "#a855f7", position: [-3, 1.5, -2], scale: 0.6, rotationSpeed: 0.25 },
-  { shape: "icosahedron", color: "#ec4899", position: [3, -1, -1.5], scale: 0.5, rotationSpeed: 0.35 },
-  { shape: "box", color: "#c084fc", position: [2.5, 1.8, -2.5], scale: 0.4, rotationSpeed: 0.3 },
-  { shape: "sphere", color: "#f472b6", position: [-2.8, -1.5, -1.8], scale: 0.5, rotationSpeed: 0.2 },
-  { shape: "torus", color: "#8b5cf6", position: [0, 2.2, -3], scale: 0.35, rotationSpeed: 0.4 },
-  { shape: "icosahedron", color: "#f9a8d4", position: [-3.5, 0, -2], scale: 0.3, rotationSpeed: 0.3 },
+  { shape: "torus", color: "#3b82f6", position: [-3, 1.5, -2], scale: 0.6, rotationSpeed: 0.25 },
+  { shape: "icosahedron", color: "#06b6d4", position: [3, -1, -1.5], scale: 0.5, rotationSpeed: 0.35 },
+  { shape: "box", color: "#60a5fa", position: [2.5, 1.8, -2.5], scale: 0.4, rotationSpeed: 0.3 },
+  { shape: "sphere", color: "#22d3ee", position: [-2.8, -1.5, -1.8], scale: 0.5, rotationSpeed: 0.2 },
+  { shape: "torus", color: "#1e40af", position: [0, 2.2, -3], scale: 0.35, rotationSpeed: 0.4 },
+  { shape: "icosahedron", color: "#67e8f9", position: [-3.5, 0, -2], scale: 0.3, rotationSpeed: 0.3 },
 ];
 
 /* CAMERA PARALLAX SETTINGS */
@@ -59,10 +60,10 @@ const PARTICLE_SIZE = 0.15;
 const PARTICLE_SEED = 42;
 // The palette each particle picks its colour from.
 const PARTICLE_COLORS: string[] = [
-  "#a855f7",
-  "#ec4899",
-  "#c084fc",
-  "#e9d5ff",
+  "#3b82f6",
+  "#06b6d4",
+  "#60a5fa",
+  "#bfdbfe",
 ];
 // The spawn area the dots are scattered across.
 const PARTICLE_SPREAD_X = 15;
@@ -91,7 +92,7 @@ const BLOOM_MODE: "auto" | "on" | "off" = "auto";
 // How strong the glow is.
 const BLOOM_INTENSITY = 0.7;
 /*
-Anything brighter than this threshold glows. Purple and pink are dark colours
+Anything brighter than this threshold glows. Blue and cyan are dark colours
 (perceived luminance of roughly 0.2 to 0.3), so at 0.6 mostly the brightest
 highlights and the light coloured particles will glow, not the shapes
 themselves. If the shapes should glow, lower this towards 0.3 or raise the
@@ -681,10 +682,10 @@ export default function HeroScene() {
       >
         <ambientLight intensity={0.4} />
         <directionalLight position={[5, 5, 5]} intensity={0.8} />
-        {/* decay={0} keeps the purple rim light strong at this distance */}
+        {/* decay={0} keeps the blue rim light strong at this distance */}
         <pointLight
           position={[-5, -5, 5]}
-          color="#a855f7"
+          color="#3b82f6"
           intensity={Math.PI}
           decay={0}
         />
@@ -695,14 +696,14 @@ export default function HeroScene() {
           <Lightformer
             form="rect"
             intensity={2}
-            color="#a855f7"
+            color="#3b82f6"
             position={[-3, 2, 2]}
             scale={[6, 6, 1]}
           />
           <Lightformer
             form="rect"
             intensity={1.5}
-            color="#ec4899"
+            color="#06b6d4"
             position={[3, -2, 2]}
             scale={[6, 6, 1]}
           />

@@ -69,7 +69,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Shared input styles, with a red border when the field has an error
 function getInputClassName(hasError: boolean): string {
-  return `w-full rounded-xl border bg-zinc-900 px-4 py-3 text-white placeholder:text-zinc-500 transition-colors duration-300 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 ${
+  return `w-full rounded-xl border bg-zinc-900 px-4 py-3 text-white placeholder:text-zinc-500 transition-colors duration-300 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary/50 ${
     hasError ? "border-red-500/60" : "border-white/10"
   }`;
 }
@@ -147,9 +147,9 @@ export default function Contact() {
       <div className="mx-auto max-w-6xl">
         {/* Section heading */}
         <header className="mb-12">
-          <div className="mb-4 h-1 w-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-500" />
+          <div className="mb-4 h-1 w-12 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary" />
 
-          <p className="mb-3 text-sm font-medium uppercase tracking-wider text-purple-400">
+          <p className="mb-3 text-sm font-medium uppercase tracking-wider text-brand-primary">
             Contact
           </p>
 
@@ -169,8 +169,8 @@ export default function Contact() {
           {/* Contact details and social links */}
           <div>
             <ul className="space-y-4">
-              <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-purple-500/50">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
+              <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-brand-primary/50">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
                   <svg
                     aria-hidden="true"
                     className="h-5 w-5"
@@ -189,15 +189,15 @@ export default function Contact() {
                   <p className="text-sm text-zinc-400">Email</p>
                   <a
                     href="mailto:ashfaqislam223539@gmail.com"
-                    className="break-all text-white transition-colors duration-300 hover:text-purple-400 focus-visible:outline-none focus-visible:text-purple-400"
+                    className="break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
                   >
                     ashfaqislam223539@gmail.com
                   </a>
                 </div>
               </li>
 
-              <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-purple-500/50">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
+              <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-brand-primary/50">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
                   <svg
                     aria-hidden="true"
                     className="h-5 w-5"
@@ -230,7 +230,7 @@ export default function Contact() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${social.name} profile`}
-                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-purple-500/50 hover:text-purple-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-brand-primary/50 hover:text-brand-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                     >
                       {social.icon}
                     </a>
@@ -333,7 +333,7 @@ export default function Contact() {
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 py-3 font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary py-3 font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-brand-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 Send Message
               </button>

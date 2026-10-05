@@ -53,9 +53,9 @@ export default function Projects() {
       <div className="mx-auto max-w-6xl">
         {/* Section heading */}
         <header className="mb-12">
-          <div className="mb-4 h-1 w-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-500" />
+          <div className="mb-4 h-1 w-12 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary" />
 
-          <p className="mb-3 text-sm font-medium uppercase tracking-wider text-purple-400">
+          <p className="mb-3 text-sm font-medium uppercase tracking-wider text-brand-primary">
             My Work
           </p>
 
@@ -78,7 +78,7 @@ export default function Projects() {
             return (
               <article
                 key={project.id}
-                className="group rounded-2xl border border-white/10 bg-zinc-900/50 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 md:p-8"
+                className="group rounded-2xl border border-white/10 bg-zinc-900/50 p-6 transition-all duration-300 hover:scale-[1.02] hover:border-brand-primary/50 hover:shadow-xl hover:shadow-brand-primary/10 md:p-8"
               >
                 <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12">
                   {/* Screenshot placeholder */}
@@ -87,7 +87,7 @@ export default function Projects() {
                     <div
                       role="img"
                       aria-label={`${project.title} preview`}
-                      className="flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-purple-500/20 via-pink-500/10 to-zinc-900"
+                      className="flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-brand-primary/20 via-brand-secondary/10 to-zinc-900"
                     >
                       <span
                         aria-hidden="true"
@@ -110,7 +110,7 @@ export default function Projects() {
                       {project.tags.map((tag) => (
                         <li
                           key={tag}
-                          className="rounded-full border border-white/10 bg-zinc-900 px-3 py-1 text-xs text-zinc-300 transition-colors duration-300 hover:border-purple-500/50 md:text-sm"
+                          className="rounded-full border border-white/10 bg-zinc-900 px-3 py-1 text-xs text-zinc-300 transition-colors duration-300 hover:border-brand-primary/50 md:text-sm"
                         >
                           {tag}
                         </li>
@@ -123,7 +123,7 @@ export default function Projects() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`Live demo of ${project.title}`}
-                        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
+                        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-3 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-brand-primary/25"
                       >
                         Live Demo →
                       </a>
@@ -133,7 +133,7 @@ export default function Projects() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`Source code of ${project.title}`}
-                        className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3 font-medium text-white transition-colors duration-300 hover:border-purple-500/50 hover:text-purple-400"
+                        className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3 font-medium text-white transition-colors duration-300 hover:border-brand-primary/50 hover:text-brand-accent"
                       >
                         <svg
                           aria-hidden="true"
@@ -160,7 +160,7 @@ export default function Projects() {
             href="https://github.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-zinc-400 transition-colors duration-300 hover:text-purple-400 hover:underline"
+            className="text-zinc-400 transition-colors duration-300 hover:text-brand-accent hover:underline"
           >
             View more on GitHub →
           </a>

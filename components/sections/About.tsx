@@ -14,7 +14,7 @@ export default function About() {
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
         {/* Section heading */}
         <div className="mb-4 flex flex-col items-center md:items-start">
-          <div className="mb-4 h-1 w-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-500" />
+          <div className="mb-4 h-1 w-12 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary" />
           <h2
             id="about-heading"
             className="text-center text-3xl font-bold tracking-tight text-white md:text-4xl"
@@ -29,14 +29,14 @@ export default function About() {
             <div className="relative isolate w-full max-w-[400px]">
               <div
                 aria-hidden="true"
-                className="absolute -inset-6 -z-10 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/20 blur-3xl md:-inset-10"
+                className="absolute -inset-6 -z-10 rounded-full bg-gradient-to-br from-brand-primary/30 to-brand-secondary/20 blur-3xl md:-inset-10"
               />
 
               {/* TODO: Replace this placeholder with a real image using next/image */}
               <div
                 role="img"
                 aria-label="Photo of Ashfaq Islam"
-                className="rounded-2xl bg-gradient-to-r from-purple-400 to-pink-500 p-[2px] transition-transform duration-300 hover:scale-[1.02]"
+                className="rounded-2xl bg-gradient-to-r from-brand-primary to-brand-secondary p-[2px] transition-transform duration-300 hover:scale-[1.02]"
               >
                 <div className="flex aspect-square items-center justify-center rounded-2xl bg-zinc-950">
                   <span aria-hidden="true" className="text-7xl md:text-8xl">
@@ -50,7 +50,7 @@ export default function About() {
           {/* Bio, stats and CTA */}
           <div className="space-y-6">
             <p className="text-lg leading-relaxed text-zinc-100 md:text-xl">
-              Hi, I&apos;m <span className="text-purple-400">Ashfaq Islam</span> — a
+              Hi, I&apos;m <span className="text-brand-primary">Ashfaq Islam</span> — a
               passionate Full Stack Developer based in Bangladesh.
             </p>
 
@@ -70,9 +70,9 @@ export default function About() {
                 {stats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-xl border border-white/10 bg-white/5 p-5 transition-colors duration-300 hover:border-purple-500/50"
+                    className="rounded-xl border border-white/10 bg-white/5 p-5 transition-colors duration-300 hover:border-brand-primary/50"
                   >
-                    <p className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-3xl font-bold text-transparent">
+                    <p className="bg-gradient-to-r from-brand-primary to-brand-secondary bg-clip-text text-3xl font-bold text-transparent">
                       {stat.value}
                     </p>
                     <p className="mt-1 text-sm text-zinc-400">{stat.label}</p>
@@ -84,7 +84,7 @@ export default function About() {
               <a
                 href="/resume.pdf"
                 download
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary px-6 py-3 font-medium text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-brand-primary/25"
               >
                 <svg
                   aria-hidden="true"
