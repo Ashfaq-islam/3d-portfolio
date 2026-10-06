@@ -12,10 +12,13 @@ interface FormData {
 // Only the fields that are wrong get an entry, so it's all optional
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
+type SocialGroup = "professional" | "social";
+
 type SocialLink = {
   name: string;
   href: string;
   icon: ReactNode;
+  group: SocialGroup;
 };
 
 // TODO: Replace with real social profile URLs
@@ -23,6 +26,7 @@ const socialLinks: SocialLink[] = [
   {
     name: "GitHub",
     href: "#",
+    group: "professional",
     icon: (
       <svg
         aria-hidden="true"
@@ -37,6 +41,7 @@ const socialLinks: SocialLink[] = [
   {
     name: "LinkedIn",
     href: "#",
+    group: "professional",
     icon: (
       <svg
         aria-hidden="true"
@@ -49,8 +54,24 @@ const socialLinks: SocialLink[] = [
     ),
   },
   {
+    name: "LeetCode",
+    href: "#",
+    group: "professional",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z" />
+      </svg>
+    ),
+  },
+  {
     name: "X",
     href: "#",
+    group: "professional",
     icon: (
       <svg
         aria-hidden="true"
@@ -65,6 +86,7 @@ const socialLinks: SocialLink[] = [
   {
     name: "Facebook",
     href: "#",
+    group: "social",
     icon: (
       <svg
         aria-hidden="true"
@@ -79,6 +101,7 @@ const socialLinks: SocialLink[] = [
   {
     name: "Instagram",
     href: "#",
+    group: "social",
     icon: (
       <svg
         aria-hidden="true"
@@ -86,13 +109,29 @@ const socialLinks: SocialLink[] = [
         viewBox="0 0 24 24"
         fill="currentColor"
       >
-        <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9a3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16Zm0 3.89a5.95 5.95 0 1 0 0 11.9 5.95 5.95 0 0 0 0-11.9Zm0 9.82a3.87 3.87 0 1 1 0-7.74 3.87 3.87 0 0 1 0 7.74Zm6.05-10.06a1.39 1.39 0 1 1-2.78 0 1.39 1.39 0 0 1 2.78 0Z" />
+        <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9a3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06.36 2.23.41C8.42 2.17 8.8 2.16 12 2.16Zm0 3.89a5.95 5.95 0 1 0 0 11.9 5.95 5.95 0 0 0 0-11.9Zm0 9.82a3.87 3.87 0 1 1 0-7.74 3.87 3.87 0 0 1 0 7.74Zm6.05-10.06a1.39 1.39 0 1 1-2.78 0 1.39 1.39 0 0 1 2.78 0Z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Reddit",
+    href: "#",
+    group: "social",
+    icon: (
+      <svg
+        aria-hidden="true"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+        <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
       </svg>
     ),
   },
   {
     name: "Discord",
     href: "#",
+    group: "social",
     icon: (
       <svg
         aria-hidden="true"
@@ -104,35 +143,10 @@ const socialLinks: SocialLink[] = [
       </svg>
     ),
   },
-  {
-    name: "Snapchat",
-    href: "#",
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-      >
-        <path d="M12 2.2c2.9 0 4.75 2 4.83 4.72v.86c.2.05.4.05.6.05.9 0 1.3-.36 1.55-.36.4 0 .8.5.55 1.1-.2.5-.85.8-1.5 1.1-.15.05-.3.4-.3.7 0 1.6 1.6 2.6 3.3 3 .35.1.55.4.45.8-.3 1.3-2.2 1.9-3.2 2-.05.35-.15.7-.6.9-.4.15-1.4.15-2.6.5-.2.9-.4 1.55-1.3 1.55-.6 0-1.1-.4-2.2-.4-1.4 0-2.9.9-4.8.9s-3.4-.9-4.8-.9c-1.1 0-1.6.4-2.2.4-.9 0-1.1-.65-1.3-1.55-1.2-.35-2.2-.35-2.6-.5-.45-.2-.55-.55-.6-.9-1-.1-2.9-.7-3.2-2-.1-.4.1-.7.45-.8 1.7-.4 3.3-1.4 3.3-3 0-.3-.15-.65-.3-.7-.65-.3-1.3-.6-1.5-1.1-.25-.6.15-1.1.55-1.1.25 0 .65.36 1.55.36.2 0 .4 0 .6-.05v-.86C7.25 4.2 9.1 2.2 12 2.2Z" />
-      </svg>
-    ),
-  },
-  {
-    name: "Pinterest",
-    href: "#",
-    icon: (
-      <svg
-        aria-hidden="true"
-        className="h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-      >
-        <path d="M12 2.2a9.8 9.8 0 0 0-3.6 18.9c-.1-.8-.2-2 0-2.9l1.2-5.1s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.6 1.3 1.4 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.8 1.5 1.8 1.8 0 3.1-1.9 3.1-4.6 0-2.4-1.7-4.1-4.2-4.1-2.9 0-4.6 2.2-4.6 4.4 0 .9.3 1.8.8 2.3.1.1.1.2.1.3l-.25 1c0 .2-.2.2-.4.1-1.2-.55-1.9-2.3-1.9-3.7 0-3 2.2-5.8 6.4-5.8 3.3 0 5.9 2.4 5.9 5.6 0 3.3-2.1 6-5 6-1 0-1.9-.5-2.2-1.1l-.6 2.3c-.2.8-.7 1.7-1.1 2.3A9.8 9.8 0 1 0 12 2.2Z" />
-      </svg>
-    ),
-  },
 ];
+
+const professionalLinks = socialLinks.filter((link) => link.group === "professional");
+const socialGroupLinks = socialLinks.filter((link) => link.group === "social");
 
 // Very simple email check: something@something.tld
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -162,6 +176,37 @@ function validate(values: FormData): FormErrors {
   }
 
   return nextErrors;
+}
+
+interface SocialGroupListProps {
+  label: string;
+  id: string;
+  links: SocialLink[];
+}
+
+function SocialGroupList({ label, id, links }: SocialGroupListProps) {
+  return (
+    <div>
+      <p id={id} className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-400">
+        {label}
+      </p>
+      <ul aria-labelledby={id} className="grid grid-cols-4 gap-4 place-items-center">
+        {links.map((social) => (
+          <li key={social.name}>
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${social.name} profile`}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-brand-primary/50 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            >
+              {social.icon}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default function Contact() {
@@ -293,69 +338,62 @@ export default function Contact() {
                 </div>
               </li>
 
-              <li className="rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-brand-primary/50">
-                <div className="flex gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
-                    <svg
-                      aria-hidden="true"
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="7" y="2" width="10" height="20" rx="2.5" />
-                      <path d="M11 18.5h2" />
-                    </svg>
-                  </span>
+              <li className="flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-900/50 p-5 transition-colors duration-300 hover:border-brand-primary/50">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
+                  <svg
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="7" y="2" width="10" height="20" rx="2.5" />
+                    <path d="M11 18.5h2" />
+                  </svg>
+                </span>
 
-                  {/* One row per number: the number as a tel: link, with the
-                      carrier named underneath. */}
-                  <div className="min-w-0">
-                    <p className="text-sm text-zinc-400">Phone</p>
+                <div className="min-w-0">
+                  <p className="text-sm text-zinc-400">Phone</p>
 
-                    <a
-                      href="tel:+8801973327179"
-                      className="block break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
-                    >
-                      +880 1973-327179
-                    </a>
-                    <p className="text-xs text-zinc-400">Banglalink</p>
+                  <a
+                    href="tel:+8801973327179"
+                    className="block break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
+                  >
+                    +880 1973-327179
+                  </a>
+                  <p className="text-xs text-zinc-400">Banglalink</p>
 
-                    <a
-                      href="tel:+8801825722447"
-                      className="mt-3 block break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
-                    >
-                      +880 1825-722447
-                    </a>
-                    <p className="text-xs text-zinc-400">Robi</p>
-                  </div>
+                  <a
+                    href="tel:+8801825722447"
+                    className="mt-3 block break-all text-white transition-colors duration-300 hover:text-brand-accent focus-visible:outline-none focus-visible:text-brand-accent"
+                  >
+                    +880 1825-722447
+                  </a>
+                  <p className="text-xs text-zinc-400">Robi</p>
                 </div>
               </li>
             </ul>
 
             {/* Social profiles. mt-auto pushes this block to the bottom of the
-                column. The grid is 4 columns on every screen size (2 rows of 4),
-                which is the only way to fit 8 round buttons down to 320px. */}
+                column. */}
             <div className="mt-auto pt-10">
-              <p className="mb-4 text-zinc-400">Find me on</p>
-              <ul className="grid grid-cols-4 gap-4 place-items-center">
-                {socialLinks.map((social) => (
-                  <li key={social.name}>
-                    <a
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${social.name} profile`}
-                      className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-zinc-900 text-zinc-300 transition-all duration-300 hover:scale-110 hover:border-brand-primary/50 hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                    >
-                      {social.icon}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <p className="text-zinc-400">Find me on</p>
+
+              <div className="mt-6 space-y-6">
+                <SocialGroupList
+                  label="Professional"
+                  id="professional-links"
+                  links={professionalLinks}
+                />
+                <SocialGroupList
+                  label="Social"
+                  id="social-links"
+                  links={socialGroupLinks}
+                />
+              </div>
             </div>
           </div>
 
