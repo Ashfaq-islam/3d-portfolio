@@ -45,3 +45,4 @@ next-env.d.ts
 # Accidental build output files
 3d-portfolio@*
 next
+.env.local

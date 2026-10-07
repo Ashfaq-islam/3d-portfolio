@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import { apiFetch } from "@/lib/api";
+import type { ApiResponse } from "@/lib/api";
 
 interface FormData {
   name: string;
@@ -11,6 +13,34 @@ interface FormData {
 
 // Only the fields that are wrong get an entry, so it's all optional
 type FormErrors = Partial<Record<keyof FormData, string>>;
+
+// The subset of form fields the backend can return validation errors for
+type ContactField = "name" | "email" | "message";
+
+// Shape of `data` in the 201 response from POST /api/contact
+interface ContactSubmitData {
+  id: string;
+}
+
+// Kept in one place so the wording never drifts from the JSX
+const SUCCESS_MESSAGE = "Thanks! I'll get back to you soon.";
+
+// Fallback when the server rejects the message without a usable error string
+function getSubmitErrorMessage(result: ApiResponse<ContactSubmitData>): string {
+  if (result.error) return result.error;
+  // 400 with per-field details but no summary: point the user at the fields
+  if (
+    result.status === 400 &&
+    result.details &&
+    result.details.length > 0
+  ) {
+    return "Please fix the highlighted fields.";
+  }
+  if (result.status === 429) {
+    return "Too many messages. Please try again in a few minutes.";
+  }
+  return "Something went wrong. Please try again.";
+}
 
 type SocialGroup = "professional" | "social";
 
@@ -217,6 +247,11 @@ export default function Contact() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Server/network error banner shown above the submit button
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  // Shown after 5s so the user knows a cold backend can take up to a minute
+  const [showSlowHint, setShowSlowHint] = useState(false);
 
   // Works for both <input> and <textarea> because we read e.target.name
   function handleChange(
@@ -227,7 +262,7 @@ export default function Contact() {
 
     setFormData((previous) => ({ ...previous, [field]: value }));
 
-    // Clear this field's error and hide the success message while typing
+    // Clear this field's error and hide the success/error messages while typing
     setErrors((previous) => {
       if (!previous[field]) return previous;
       const next = { ...previous };
@@ -235,10 +270,17 @@ export default function Contact() {
       return next;
     });
     setIsSubmitted(false);
+    setSubmitError(null);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // Ignore repeat submits (e.g. a double click) while a request is in flight
+    if (isSubmitting) return;
+
+    setSubmitError(null);
+    setIsSubmitted(false);
 
     const nextErrors = validate(formData);
     setErrors(nextErrors);
@@ -246,11 +288,53 @@ export default function Contact() {
     // Stop here if something is wrong
     if (Object.keys(nextErrors).length > 0) return;
 
-    // TODO: Connect to a real backend/API later (no fetch for now)
-    console.log("Contact form submitted:", formData);
+    setIsSubmitting(true);
 
-    setFormData({ name: "", email: "", message: "" });
-    setIsSubmitted(true);
+    // Started in the handler (not useEffect) to avoid setState-in-effect lint
+    // issues. 5 seconds is long enough that fast responses never see it.
+    const slowHintTimer = window.setTimeout(() => setShowSlowHint(true), 5000);
+
+    try {
+      const result = await apiFetch<ContactSubmitData>("/api/contact", {
+        method: "POST",
+        // Send trimmed values so the server stores clean data
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
+        }),
+      });
+
+      if (result.success) {
+        setFormData({ name: "", email: "", message: "" });
+        setErrors({});
+        setIsSubmitted(true);
+      } else {
+        // Map server-side field errors onto the matching inputs, so their
+        // inline messages appear just like the client-side ones.
+        if (result.details && result.details.length > 0) {
+          const fieldErrors: Partial<Record<ContactField, string>> = {};
+          for (const detail of result.details) {
+            const { field, message } = detail;
+            if (field === "name" || field === "email" || field === "message") {
+              fieldErrors[field] = message;
+            }
+          }
+          if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+          }
+        }
+        setSubmitError(getSubmitErrorMessage(result));
+      }
+    } catch {
+      // apiFetch never throws today, but keep a safety net so the form can
+      // never get stuck in a submitting state without feedback.
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      window.clearTimeout(slowHintTimer);
+      setShowSlowHint(false);
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -400,7 +484,12 @@ export default function Contact() {
           {/* Contact form. h-full + flex flex-col lets the Message field grow, so
               this card ends at the same height as the column on its left. */}
           <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-zinc-900/50 p-6 md:p-8">
-            <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              aria-busy={isSubmitting}
+              className="flex flex-1 flex-col space-y-6"
+            >
               <div>
                 <label
                   htmlFor="contact-name"
@@ -487,16 +576,36 @@ export default function Contact() {
                   aria-live="polite"
                   className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-400"
                 >
-                  Thanks! I&apos;ll get back to you soon.
+                  {SUCCESS_MESSAGE}
+                </div>
+              )}
+
+              {/* Server/network error banner (same box style as success, red) */}
+              {submitError && (
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-400"
+                >
+                  {submitError}
                 </div>
               )}
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary py-3 font-medium text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-brand-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                disabled={isSubmitting}
+                aria-busy={isSubmitting}
+                className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary py-3 font-medium text-white transition-all duration-300 enabled:hover:scale-[1.02] enabled:hover:shadow-lg enabled:hover:shadow-brand-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Send Message
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
+
+              {/* Explains the wait while the Render free tier cold-starts */}
+              {showSlowHint && (
+                <p aria-live="polite" className="text-sm text-zinc-400">
+                  Still sending... the first message can take up to a minute
+                  while the server wakes up.
+                </p>
+              )}
             </form>
           </div>
         </div>
